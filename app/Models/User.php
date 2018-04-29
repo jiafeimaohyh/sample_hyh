@@ -36,11 +36,24 @@ class User extends Authenticatable
             $user->activation_token = str_random(30);
         });
     }
-
+//发送邮件
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token));
     }
+//关联微博模型
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
+    }
+    public function feed()
+    {
+        $this->statuses()
+             ->orderBy('created_at','desc');
+    }
+
+
+
     public function gravatar($size = '100')
     {
         $hash = md5(strtolower(trim($this->attributes['email'])));

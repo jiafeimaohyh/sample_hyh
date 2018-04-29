@@ -32,7 +32,11 @@ class UsersController extends Controller
     }
     public function show(User $user)
     {
-    	return view('users.show',compact('user'));
+
+        $statuses = $user->statuses()
+                        ->orderBy('created_at','desc')
+                        ->paginate(20);
+    	return view('users.show',compact('user','statuses'));
     }
 //注册操作
     public function store(Request $request)
@@ -53,6 +57,7 @@ class UsersController extends Controller
         session()->flash('success', '验证邮件已发送到你的注册邮箱上，请注意查收。');
         return redirect('/');
     }
+    //发送注册激活邮件
     protected function sendEmailConfirmationTo($user)
     {
         $view = 'emails.confirm';
@@ -66,7 +71,7 @@ class UsersController extends Controller
             $message->to($to)->subject($subject);
         });
     }
-
+//账号激活
     public function confirmEmail($token)
     {
         $user = User::where(['activation_token'=>$token])->firstOrFail();
